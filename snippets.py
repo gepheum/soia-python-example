@@ -1,3 +1,11 @@
+# Code snippets showing how to use Python-generated data classes.
+#
+# Run with:
+#   npm run snippets
+# or:
+#   npm run build
+#   python snippets.py
+
 from typing import Never
 
 import soia.reflection
@@ -222,22 +230,7 @@ print(user_type_descriptor.as_json_code())
 #           },
 #           "number": 0
 #         },
-#         {
-#           "name": "name",
-#           "type": {
-#             "kind": "primitive",
-#             "value": "string"
-#           },
-#           "number": 1
-#         },
-#         {
-#           "name": "quote",
-#           "type": {
-#             "kind": "primitive",
-#             "value": "string"
-#           },
-#           "number": 2
-#         },
+#          ...
 #         {
 #           "name": "pets",
 #           "type": {
@@ -251,74 +244,15 @@ print(user_type_descriptor.as_json_code())
 #           },
 #           "number": 3
 #         },
-#         {
-#           "name": "subscription_status",
-#           "type": {
-#             "kind": "record",
-#             "value": "user.soia:User.SubscriptionStatus"
-#           },
-#           "number": 4
-#         }
+#         ...
 #       ]
 #     },
 #     {
 #       "kind": "struct",
 #       "id": "user.soia:User.Pet",
-#       "fields": [
-#         {
-#           "name": "name",
-#           "type": {
-#             "kind": "primitive",
-#             "value": "string"
-#           },
-#           "number": 0
-#         },
-#         {
-#           "name": "height_in_meters",
-#           "type": {
-#             "kind": "primitive",
-#             "value": "float32"
-#           },
-#           "number": 1
-#         },
-#         {
-#           "name": "picture",
-#           "type": {
-#             "kind": "primitive",
-#             "value": "string"
-#           },
-#           "number": 2
-#         }
-#       ]
+#       ...
 #     },
-#     {
-#       "kind": "enum",
-#       "id": "user.soia:User.SubscriptionStatus",
-#       "fields": [
-#         {
-#           "name": "trial",
-#           "type": {
-#             "kind": "record",
-#             "value": "user.soia:User.Trial"
-#           },
-#           "number": 2
-#         }
-#       ]
-#     },
-#     {
-#       "kind": "struct",
-#       "id": "user.soia:User.Trial",
-#       "fields": [
-#         {
-#           "name": "start_time",
-#           "type": {
-#             "kind": "primitive",
-#             "value": "timestamp"
-#           },
-#           "number": 0
-#         }
-#       ]
-#     }
+#     ...
 #   ]
 # }
 
