@@ -77,6 +77,30 @@ joly_history_mut.mutable_user.quote = "I am Joly."
 lyla_mut.mutable_pets.append(User.Pet(name="Cupcake"))
 lyla_mut.mutable_pets.append(User.Pet.Mutable(name="Simba"))
 
+# CONVERTING BETWEEN FROZEN AND MUTABLE
+
+# to_mutable() does a shallow copy of the frozen struct, so it's cheap. All the
+# properties of the copy hold a frozen value.
+evil_jane_mut = jane.to_mutable()
+evil_jane_mut.name = "Evil Jane"
+
+# to_frozen() recursively copies the mutable values held by properties of the
+# object. It's cheap if all the values are frozen, like in this example.
+evil_jane: User = evil_jane_mut.to_frozen()
+
+# WRITING LOGIC AGNOSTIC OF MUTABILITY
+
+
+# 'User.OrMutable' is a type alias for 'User | User.Mutable'.
+def greet(user: User.OrMutable):
+    print(f"Hello, ${user.name}")
+
+
+greet(jane)
+# Hello, Jane Doe
+greet(lyla_mut)
+# Hello, Lyla Doe
+
 # MAKING ENUM VALUES
 
 john_status = User.SubscriptionStatus.FREE
@@ -94,6 +118,9 @@ roni_status = User.SubscriptionStatus.wrap_trial(
 # Use e.kind == "CONSTANT_NAME" to check if the enum value is a constant.
 assert john_status.kind == "FREE"
 assert john_status.value is None
+
+# Static type checkers will complain: "RED" not in the enum definition.
+# assert jane_status.kind == "RED"
 
 # Use "?" for UNKNOWN.
 assert joly_status.kind == "?"
@@ -178,6 +205,7 @@ assert user_registry.users.find_or_default(100).name == ""
 # find() and find_or_default() run in O(1) time.
 
 # CONSTANTS
+
 print(TARZAN)
 # User(
 #   user_id=123,
