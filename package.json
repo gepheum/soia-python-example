@@ -1,7 +1,5 @@
 {
   "scripts": {
-    "format": "prettier --write \"**/*.ts\"",
-    "format:check": "prettier --check \"**/*.ts\"",
     "soiac": "soiac",
     "pip-install": "python3 -m pip install -r requirements.txt",
     "build": "npm run soiac && npm run pip-install",
