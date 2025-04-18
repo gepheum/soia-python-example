@@ -1,0 +1,5 @@
+srcDir: ./soia_src
+
+generators:
+  - mod: soia-python-gen
+    config: {}

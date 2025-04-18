@@ -1,0 +1,19 @@
+import User from "user.soia";
+
+struct GetUserRequest {
+  user_id: int64;
+}
+
+struct GetUserResponse {
+  user: User?;
+}
+
+method GetUser(GetUserRequest): GetUserResponse;
+
+struct AddUserRequest {
+  user: User;
+}
+
+struct AddUserResponse {}
+
+method AddUser(AddUserRequest): AddUserResponse;
