@@ -24,7 +24,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: npm ci
+      - run: npm run snippets
       - uses: jakebailey/pyright-action@v2
         with:
           pylance-version: latest-release
-      - run: npm run test
