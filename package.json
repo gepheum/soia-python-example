@@ -9,6 +9,6 @@
   },
   "devDependencies": {
     "soia-python-gen": "^1.0.6",
-    "soiac": "^1.0.24"
+    "soiac": "^1.0.27"
   }
 }
