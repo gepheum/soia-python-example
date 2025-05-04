@@ -1,7 +1,7 @@
 # Starts a soia service on http://localhost:8787/?myapi
 #
 # Run with:
-#   npm run server
+#   npm run start-service
 # or:
 #   npm run build
 #   python start_service.py
@@ -12,6 +12,7 @@ import urllib.parse
 
 from flask import Flask, Response, request
 from soiagen import service, user
+from werkzeug.datastructures import Headers
 
 import soia
 
@@ -30,8 +31,8 @@ class ServiceImpl:
     def add_user(
         self,
         request: service.AddUserRequest,
-        req_headers: soia.RequestHeaders,
-        res_headers: soia.ResponseHeaders,
+        req_headers: Headers,
+        res_headers: Headers,
     ) -> service.AddUserResponse:
         user = request.user
         if user.user_id == 0:
@@ -45,7 +46,7 @@ class ServiceImpl:
 
 service_impl = ServiceImpl()
 
-soia_service = soia.Service()
+soia_service = soia.Service[Headers, Headers]()
 soia_service.add_method(service.AddUser, service_impl.add_user)
 soia_service.add_method(service.GetUser, service_impl.get_user)
 
@@ -61,8 +62,8 @@ def myapi():
         req_body = request.get_data(as_text=True)
     else:
         req_body = urllib.parse.unquote(request.query_string.decode("utf-8"))
-    req_headers = dict(request.headers)
-    res_headers: dict[str, str] = {}
+    req_headers = request.headers
+    res_headers = Headers()
     raw_response = soia_service.handle_request(req_body, req_headers, res_headers)
     return Response(
         raw_response.data,
