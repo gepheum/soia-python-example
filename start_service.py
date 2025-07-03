@@ -37,6 +37,7 @@ class ServiceImpl:
         user = request.user
         if user.user_id == 0:
             raise ValueError("invalid user id")
+        print(f"Adding user: {user}")
         self._id_to_user[user.user_id] = user
         res_headers["X-Bar"] = req_headers.get("X-Foo", "").upper()
         return service.AddUserResponse()
