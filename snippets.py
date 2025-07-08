@@ -11,7 +11,7 @@ from typing import Never
 import soia.reflection
 
 # Import the given symbols from the Python module generated from "user.soia"
-from soiagen.user_so import TARZAN, User, UserHistory, UserRegistry
+from soiagen.user_soia import TARZAN, User, UserHistory, UserRegistry
 
 import soia
 
