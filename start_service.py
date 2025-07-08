@@ -11,7 +11,7 @@
 import urllib.parse
 
 from flask import Flask, Response, request
-from soiagen import service, user
+from soiagen import service_so, user_so
 from werkzeug.datastructures import Headers
 
 import soia
@@ -23,33 +23,35 @@ class ServiceImpl:
     def __init__(self):
         self._id_to_user = {}
 
-    def get_user(self, request: service.GetUserRequest) -> service.GetUserResponse:
+    def get_user(
+        self, request: service_so.GetUserRequest
+    ) -> service_so.GetUserResponse:
         user_id = request.user_id
         user = self._id_to_user.get(user_id)
-        return service.GetUserResponse(user=user)
+        return service_so.GetUserResponse(user=user)
 
     def add_user(
         self,
-        request: service.AddUserRequest,
+        request: service_so.AddUserRequest,
         req_headers: Headers,
         res_headers: Headers,
-    ) -> service.AddUserResponse:
+    ) -> service_so.AddUserResponse:
         user = request.user
         if user.user_id == 0:
             raise ValueError("invalid user id")
         print(f"Adding user: {user}")
         self._id_to_user[user.user_id] = user
         res_headers["X-Bar"] = req_headers.get("X-Foo", "").upper()
-        return service.AddUserResponse()
+        return service_so.AddUserResponse()
 
-    _id_to_user: dict[int, user.User]
+    _id_to_user: dict[int, user_so.User]
 
 
 service_impl = ServiceImpl()
 
 soia_service = soia.Service[Headers, Headers]()
-soia_service.add_method(service.AddUser, service_impl.add_user)
-soia_service.add_method(service.GetUser, service_impl.get_user)
+soia_service.add_method(service_so.AddUser, service_impl.add_user)
+soia_service.add_method(service_so.GetUser, service_impl.get_user)
 
 
 @app.route("/")

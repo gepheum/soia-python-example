@@ -6,7 +6,7 @@
 # or:
 #   npm run build
 #   python call_service.py
-from soiagen import service, user
+from soiagen import service_so, user_so
 
 import soia
 
@@ -17,14 +17,16 @@ if __name__ == "__main__":
     print("About to add 2 users: John Doe and Tarzan")
 
     service_client.invoke_remote(
-        service.AddUser,
-        service.AddUserRequest(user=user.User(user_id=42, name="John Doe")),
+        service_so.AddUser,
+        service_so.AddUserRequest(
+            user=user_so.User.partial(user_id=42, name="John Doe")
+        ),
     )
 
     res_headers: list[tuple[str, str]] = []
     service_client.invoke_remote(
-        service.AddUser,
-        service.AddUserRequest(user=user.TARZAN),
+        service_so.AddUser,
+        service_so.AddUserRequest(user=user_so.TARZAN),
         {"X-Foo": "hi"},
         res_headers=res_headers,
     )
@@ -36,8 +38,8 @@ if __name__ == "__main__":
     print("Done")
 
     found_user = service_client.invoke_remote(
-        service.GetUser,
-        service.GetUserRequest(user_id=123),
+        service_so.GetUser,
+        service_so.GetUserRequest(user_id=123),
     )
 
     print(f"Found user: {found_user}")
