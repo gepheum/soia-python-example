@@ -8,50 +8,56 @@
 
 from typing import Never
 
+import soia
 import soia.reflection
 
 # Import the given symbols from the Python module generated from "user.soia"
 from soiagen.user_soia import TARZAN, User, UserHistory, UserRegistry
 
-import soia
-
 # FROZEN STRUCT CLASSES
 
-# For every struct S in the .soia file, soia generates a frozen/deeply immutable
-# class 'S' and a mutable class 'S.Mutable'.
+# For every struct S in the .soia file, soia generates a frozen (deeply
+# immutable) class 'S' and a mutable class 'S.Mutable'.
 
-# To consruct a frozen/deeply immutable User, either call the partial() static
-# factory method or the constructor.
+# To construct a frozen User, either call the User constructor or the
+# User.partial() static factory method.
 
-john = User.partial(
+john = User(
     user_id=42,
     name="John Doe",
+    quote="Coffee is just a socially acceptable form of rage.",
+    pets=[
+        User.Pet(
+            name="Dumbo",
+            height_in_meters=1.0,
+            picture="🐘",
+        ),
+    ],
+    subscription_status=User.SubscriptionStatus.FREE,
+    # foo="bar",
+    # Does not compile: 'foo' is not a field of User
 )
 
 assert john.name == "John Doe"
-assert john.user_id == 42
-# Fields not specified in the call to partial() are set to their default values
-assert john.pets == ()
+
+# Lists passed to the constructor or partial() are copied into tuples to ensure
+# deep immutability.
+assert isinstance(john.pets, tuple)
 
 # Static type checkers will raise an error if you try to modify a frozen struct:
 # john.name = "John Smith"
 
-# If you call the constructor, you have to specify all the fields.
-jane = User(
+# With 'User.partial()', you don't need to specify all the fields of the struct.
+jane = User.partial(
     user_id=43,
     name="Jane Doe",
-    quote="I am Jane.",
-    pets=[
-        User.Pet.partial(name="Fluffy"),
-        User.Pet.partial(name="Fido"),
-    ],
-    subscription_status=User.SubscriptionStatus.PREMIUM,
 )
 
-# The list passed to the constructor or partial() is copied into a tuple to
-# guarantee deep immutability.
-assert isinstance(jane.pets, tuple)
+# Missing fields are initialized to their default values.
+assert jane.quote == ""
 
+# 'User.DEFAULT' is a constant holding the result of calling 'User.partial()'
+# with no arguments.
 assert User.DEFAULT == User.partial()
 
 # MUTABLE STRUCT CLASSES
@@ -65,12 +71,12 @@ lyla_mut.name = "Lyla Doe"
 joly_mut = User.Mutable(user_id=45)
 joly_mut.name = "Joly Doe"
 
+# joly_history_mut.user.quote = "I am Joly."
+# ^ Static error: quote is readonly because joly_history_mut.user may be frozen
+
 joly_history_mut = UserHistory.Mutable()
 joly_history_mut.user = joly_mut
 # ^ The right-hand side of the assignment can be either frozen or mutable.
-
-# joly_history_mut.user.quote = "I am Joly."
-# ^ Static error: quote is readonly because joly_history_mut.user may be frozen
 
 # The mutable_user() property first checks if 'user' is already a mutable
 # struct, and if so, returns it. Otherwise, it assigns to 'user' a mutable
@@ -108,7 +114,7 @@ assert evil_jane.user_id == 43
 
 # 'User.OrMutable' is a type alias for 'User | User.Mutable'.
 def greet(user: User.OrMutable):
-    print(f"Hello, ${user.name}")
+    print(f"Hello, {user.name}")
 
 
 greet(jane)
@@ -157,7 +163,7 @@ def get_subscription_info_text(status: User.SubscriptionStatus) -> str:
     elif status.union.kind == "PREMIUM":
         return "Premium user"
 
-    # Static type checkers will complain here if you missed a case.
+    # Static type checkers will error if any case is missed.
     _: Never = status.union.kind
     raise AssertionError("Unreachable code")
 
@@ -166,7 +172,7 @@ def get_subscription_info_text(status: User.SubscriptionStatus) -> str:
 
 # Serialize 'john' to dense JSON.
 
-serializer = User.SERIALIZER
+serializer = User.serializer
 
 print(serializer.to_json(john))
 # [42, 'John Doe']
@@ -174,7 +180,7 @@ print(serializer.to_json(john))
 assert isinstance(serializer.to_json(john), list)
 
 # to_json_code() returns a string containing the JSON code.
-# Same as calling json.dumps() on the result of to_json()
+# Equivalent to calling json.dumps() on to_json()'s result.
 print(serializer.to_json_code(john))
 # [42,"John Doe"]
 
@@ -217,7 +223,8 @@ assert user_registry.users.find(100) is None
 assert user_registry.users.find_or_default(42).name == "John Doe"
 assert user_registry.users.find_or_default(100).name == ""
 
-# find() and find_or_default() run in O(1) time.
+# The first lookup runs in O(N) time, and the following lookups run in O(1)
+# time.
 
 # CONSTANTS
 
@@ -249,7 +256,7 @@ print(TARZAN)
 
 field_names: list[str] = []
 
-user_type_descriptor = User.SERIALIZER.type_descriptor
+user_type_descriptor = User.serializer.type_descriptor
 
 # 'user_type_descriptor' has information about User and all the types it
 # depends on.

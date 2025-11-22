@@ -10,11 +10,11 @@
 
 import urllib.parse
 
+import soia
 from flask import Flask, Response, request
-from soiagen import service_soia, user_soia
 from werkzeug.datastructures import Headers
 
-import soia
+from soiagen import service_soia, user_soia
 
 app = Flask(__name__)
 

@@ -8,7 +8,7 @@
     "call-service": "npm run build && python3 call_service.py"
   },
   "devDependencies": {
-    "soia-python-gen": "^1.1.1",
-    "soiac": "^1.0.27"
+    "soia-python-gen": "^1.2.0",
+    "soiac": "^1.0.51"
   }
 }

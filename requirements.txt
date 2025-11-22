@@ -1,2 +1,2 @@
-soia-client >= 1.1.1
+soia-client >= 1.2.0
 flask >= 3.1.0

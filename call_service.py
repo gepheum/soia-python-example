@@ -6,9 +6,9 @@
 # or:
 #   npm run build
 #   python call_service.py
-from soiagen import service_soia, user_soia
-
 import soia
+
+from soiagen import service_soia, user_soia
 
 if __name__ == "__main__":
     service_client = soia.ServiceClient("http://localhost:8787/myapi")
