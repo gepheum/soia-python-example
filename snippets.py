@@ -1,22 +1,25 @@
 # Code snippets showing how to use Python-generated data classes.
 #
 # Run with:
-#   npm run snippets
-# or:
-#   npm run build
 #   python snippets.py
 
 from typing import Never
 
-import soia
-import soia.reflection
+import skir
+import skir.reflection
 
-# Import the given symbols from the Python module generated from "user.soia"
-from soiagen.user_soia import TARZAN, User, UserHistory, UserRegistry
+# Import the given symbols from the Python module generated from "user.skir"
+from skirout.user_skir import (
+    TARZAN,
+    SubscriptionStatus,
+    User,
+    UserHistory,
+    UserRegistry,
+)
 
 # FROZEN STRUCT CLASSES
 
-# For every struct S in the .soia file, soia generates a frozen (deeply
+# For every struct S in the .skir file, skir generates a frozen (deeply
 # immutable) class 'S' and a mutable class 'S.Mutable'.
 
 # To construct a frozen User, either call the User constructor or the
@@ -33,7 +36,7 @@ john = User(
             picture="🐘",
         ),
     ],
-    subscription_status=User.SubscriptionStatus.FREE,
+    subscription_status=SubscriptionStatus.FREE,
     # foo="bar",
     # Does not compile: 'foo' is not a field of User
 )
@@ -124,41 +127,51 @@ greet(lyla_mut)
 
 # MAKING ENUM VALUES
 
-john_status = User.SubscriptionStatus.FREE
-jane_status = User.SubscriptionStatus.PREMIUM
+john_status = SubscriptionStatus.FREE
+jane_status = SubscriptionStatus.PREMIUM
 
-joly_status = User.SubscriptionStatus.UNKNOWN
+joly_status = SubscriptionStatus.UNKNOWN
 
-# Use wrap_*() for data variants.
-roni_status = User.SubscriptionStatus.wrap_trial(
-    User.Trial(start_time=soia.Timestamp.from_unix_millis(1744974198000))
+# Use wrap_*() for wrapper variants.
+roni_status = SubscriptionStatus.wrap_trial(
+    SubscriptionStatus.Trial(
+        start_time=skir.Timestamp.from_unix_millis(1744974198000),
+    )
+)
+
+# If the wrapped value is a field, you can use create_*(...) instead of
+# wrap_*(Struct(...))
+assert roni_status == SubscriptionStatus.create_trial(
+    start_time=skir.Timestamp.from_unix_millis(1744974198000)
 )
 
 # CONDITIONS ON ENUMS
 
-# Use e.kind == "CONSTANT_NAME" to check if the enum value is a constant.
-assert john_status.kind == "FREE"
-assert john_status.value is None
+# Use status.union.kind == "..." to check which variant the enum value holds.
+assert john_status.union.kind == "FREE"
 
 # Static type checkers will complain: "RED" not in the enum definition.
-# assert jane_status.kind == "RED"
+# assert jane_status.union.kind == "RED"
 
 # Use "?" for UNKNOWN.
-assert joly_status.kind == "?"
+assert joly_status.union.kind == "?"
 
-assert roni_status.kind == "trial"
-assert isinstance(roni_status.value, User.Trial)
+assert roni_status.union.kind == "trial"
+# If the enum holds a wrapper variant, you can access the wrapped value through
+# 'union.value'.
+assert isinstance(roni_status.union.value, SubscriptionStatus.Trial)
 
 
-def get_subscription_info_text(status: User.SubscriptionStatus) -> str:
-    # Use the union() getter for typesafe switches on enums.
+def get_subscription_info_text(status: SubscriptionStatus) -> str:
+    # Pattern matching on enum variants
     if status.union.kind == "?":
         return "Unknown subscription status"
     elif status.union.kind == "FREE":
         return "Free user"
     elif status.union.kind == "trial":
-        # Here the compiler knows that the type of union.value is 'User.Trial'
-        trial: User.Trial = status.union.value
+        # Here the compiler knows that the type of 'union.value' is
+        # 'SubscriptionStatus.Trial'
+        trial = status.union.value
         return f"On trial since {trial.start_time}"
     elif status.union.kind == "PREMIUM":
         return "Premium user"
@@ -192,7 +205,7 @@ print(serializer.to_json_code(john, readable=True))
 # }
 
 # The dense JSON flavor is the flavor you should pick if you intend to
-# deserialize the value in the future. Soia allows fields to be renamed, and
+# deserialize the value in the future. Skir allows fields to be renamed, and
 # because fields names are not part of the dense JSON, renaming a field does
 # not prevent you from deserializing the value.
 # You should pick the readable flavor mostly for debugging purposes.
@@ -252,7 +265,7 @@ print(TARZAN)
 
 # REFLECTION
 
-# Reflection allows you to inspect a soia type at runtime.
+# Reflection allows you to inspect a skir type at runtime.
 
 field_names: list[str] = []
 
@@ -265,12 +278,12 @@ print(user_type_descriptor.as_json_code())
 # {
 #   "type": {
 #     "kind": "record",
-#     "value": "user.soia:User"
+#     "value": "user.skir:User"
 #   },
 #   "records": [
 #     {
 #       "kind": "struct",
-#       "id": "user.soia:User",
+#       "id": "user.skir:User",
 #       "fields": [
 #         {
 #           "name": "user_id",
@@ -288,7 +301,7 @@ print(user_type_descriptor.as_json_code())
 #             "value": {
 #               "item": {
 #                 "kind": "record",
-#                 "value": "user.soia:User.Pet"
+#                 "value": "user.skir:User.Pet"
 #               }
 #             }
 #           },
@@ -299,7 +312,7 @@ print(user_type_descriptor.as_json_code())
 #     },
 #     {
 #       "kind": "struct",
-#       "id": "user.soia:User.Pet",
+#       "id": "user.skir:User.Pet",
 #       ...
 #     },
 #     ...
@@ -307,6 +320,6 @@ print(user_type_descriptor.as_json_code())
 # }
 
 # A TypeDescriptor can be serialized and deserialized.
-assert user_type_descriptor == soia.reflection.TypeDescriptor.from_json_code(
+assert user_type_descriptor == skir.reflection.TypeDescriptor.from_json_code(
     user_type_descriptor.as_json_code()
 )

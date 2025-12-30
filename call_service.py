@@ -1,32 +1,29 @@
-# Sends RPCs to a soia service.
+# Sends RPCs to a skir service.
 # See start_service.py for how to start one.
 #
-# Run:
-#   npm run call-service
-# or:
-#   npm run build
+# Run with:
 #   python call_service.py
-import soia
+import skir
 
-from soiagen import service_soia, user_soia
+from skirout import service_skir, user_skir
 
 if __name__ == "__main__":
-    service_client = soia.ServiceClient("http://localhost:8787/myapi")
+    service_client = skir.ServiceClient("http://localhost:8787/myapi")
 
     print()
     print("About to add 2 users: John Doe and Tarzan")
 
     service_client.invoke_remote(
-        service_soia.AddUser,
-        service_soia.AddUserRequest(
-            user=user_soia.User.partial(user_id=42, name="John Doe")
+        service_skir.AddUser,
+        service_skir.AddUserRequest(
+            user=user_skir.User.partial(user_id=42, name="John Doe")
         ),
     )
 
     res_headers: list[tuple[str, str]] = []
     service_client.invoke_remote(
-        service_soia.AddUser,
-        service_soia.AddUserRequest(user=user_soia.TARZAN),
+        service_skir.AddUser,
+        service_skir.AddUserRequest(user=user_skir.TARZAN),
         {"X-Foo": "hi"},
         res_headers=res_headers,
     )
@@ -38,8 +35,8 @@ if __name__ == "__main__":
     print("Done")
 
     found_user = service_client.invoke_remote(
-        service_soia.GetUser,
-        service_soia.GetUserRequest(user_id=123),
+        service_skir.GetUser,
+        service_skir.GetUserRequest(user_id=123),
     )
 
     print(f"Found user: {found_user}")

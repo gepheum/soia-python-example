@@ -1,4 +1,4 @@
-import User from "user.soia";
+import User from "user.skir";
 
 struct GetUserRequest {
   user_id: int64;

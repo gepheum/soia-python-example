@@ -1,6 +1,7 @@
 struct User {
   user_id: int64;
   name: string;
+  /// A personal quote or motto chosen by the user
   quote: string;
 
   struct Pet {
@@ -10,17 +11,20 @@ struct User {
   }
   pets: [Pet];
 
-  struct Trial {
-    start_time: timestamp;
-  }
-  enum SubscriptionStatus {
-    FREE;
-    trial: Trial;
-    PREMIUM;
-  }
   subscription_status: SubscriptionStatus;
 }
 
+enum SubscriptionStatus {
+  FREE;
+  trial: Trial;
+  PREMIUM;
+
+  struct Trial {
+    start_time: timestamp;
+  }
+}
+
+/// King of the jungle
 const TARZAN: User = {
   user_id: 123,
   name: "Tarzan",
