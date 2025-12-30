@@ -10,6 +10,9 @@ git clone https://github.com/gepheum/skir-python-example.git
 
 cd skir-python-example
 
+# Install dependencies
+pip install -r requirements.txt
+
 # Run Skir-to-Python codegen
 npx skir gen
 
