@@ -17,7 +17,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: npx skir format --ci
       - run: npx skir gen
-      - run: npm run snippets
       - uses: jakebailey/pyright-action@v2
         with:
           pylance-version: latest-release
+      - run: python snippets.py
