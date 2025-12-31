@@ -147,7 +147,7 @@ assert roni_status == SubscriptionStatus.create_trial(
 
 # CONDITIONS ON ENUMS
 
-# Use status.union.kind == "..." to check which variant the enum value holds.
+# Use 'union.kind' to check which variant the enum value holds.
 assert john_status.union.kind == "FREE"
 
 # Static type checkers will complain: "RED" not in the enum definition.
